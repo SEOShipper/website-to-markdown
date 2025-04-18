@@ -13,7 +13,6 @@ function App() {
 	const [success, setSuccess] = useState<string | null>(null);
 	const [error, setError] = useState<string | null>(null);
 	const [markdown, setMarkdown] = useState<string>("");
-	// const [hasMain, setHasMain] = useState<boolean>(false);
 	const [contentType, setContentType] = useState<string>("main");
 
 	const turndownService = new TurndownService({
@@ -30,6 +29,27 @@ function App() {
 	turndownService.addRule("removeStyles", {
 		filter: ["style", "script"],
 		replacement: () => "",
+	});
+
+	turndownService.addRule("removeNavigation", {
+		filter: ["header", "footer", "nav"],
+		replacement: () => "",
+	});
+
+	turndownService.addRule("mobileNavigation", {
+		filter: (node) => {
+			return (
+				(node.nodeName === "DIV" &&
+					(node.getAttribute("class")?.includes("mobile-navigation") ||
+						node.getAttribute("class")?.includes("mobile-menu") ||
+						node.getAttribute("class")?.includes("mobile-nav") ||
+						node.getAttribute("class")?.includes("nav"))) ??
+				false
+			);
+		},
+		replacement: () => {
+			return "";
+		},
 	});
 
 	const convertToMarkdown = async (source: "body" | "main" | "all") => {
@@ -79,6 +99,7 @@ function App() {
 								}
 
 								content = temp.innerHTML;
+								console.log(content);
 
 								return {
 									title,
@@ -221,7 +242,7 @@ ${content}
 	};
 
 	return (
-		<div className="min-h-[300px] min-w-[500px] bg-[#d5f0f8]">
+		<div className="min-h-[300px] min-w-[500px] bg-modern-oxford">
 			<div className="container mx-auto p-4 flex flex-col items-center">
 				<div className="w-full flex justify-end mb-4">
 					<ContentSelector
@@ -235,7 +256,7 @@ ${content}
 					alt="Website To Markdown"
 					className="w-[80px] h-[80px] mb-4"
 				/>
-				<h1 className="text-xl font-bold mb-4 text-[#222]">
+				<h1 className="text-xl font-bold mb-4 text-modern-mint">
 					Website To Markdown
 				</h1>
 				<div className="flex flex-col items-center gap-4 justify-center mb-4">
@@ -245,11 +266,11 @@ ${content}
 					<button
 						type="submit"
 						onClick={() => convertToMarkdown("all")}
-						className="w-[220px] px-4 py-2 bg-[#51b0ef] hover:bg-[#438dd2] text-white text-sm font-bold rounded-md"
+						className="w-[220px] px-4 py-2 bg-black hover:bg-[#438dd2] text-modern-mint text-sm font-bold rounded-md"
 					>
 						<div className="flex flex-col items-center gap-2">
 							<div>Convert All Tabs</div>
-							<div className="text-xs text-gray-300">
+							<div className="text-xs font-sans text-gray-400">
 								({contentType === "main" ? "main content" : "body content"})
 							</div>
 						</div>
@@ -258,11 +279,11 @@ ${content}
 					<button
 						type="submit"
 						onClick={() => convertToMarkdown("main")}
-						className="w-[220px] px-4 py-2 bg-[#51b0ef] hover:bg-[#438dd2] text-white text-sm font-bold rounded-md"
+						className="w-[220px] px-4 py-2 bg-black hover:bg-[#438dd2] text-modern-mint text-sm font-bold rounded-md"
 					>
 						<div className="flex flex-col items-center gap-2">
 							<div>Convert Current Tab</div>
-							<div className="text-xs text-gray-300">
+							<div className="text-xs font-sans text-gray-400">
 								(Current tab,{" "}
 								{contentType === "main" ? "main content" : "body content"})
 							</div>
@@ -273,19 +294,19 @@ ${content}
 						<button
 							type="submit"
 							onClick={downloadMarkdown}
-							className="w-[220px] px-4 py-2 bg-[#45e08b] hover:bg-[#43d27a] text-white text-sm font-bold rounded-md"
+							className="w-[220px] px-4 py-2 bg-modern-dark-moss hover:bg-green-700 text-modern-mint text-sm font-bold rounded-md"
 						>
 							Download Markdown
 						</button>
 					)}
 				</div>
 				{success && (
-					<div className="text-green-500 text-sm text-center p-4 bg-green-50 rounded-md border border-green-200">
+					<div className="text-green-900 text-sm text-center p-4 bg-green-50 rounded-md border border-green-200">
 						{success}
 					</div>
 				)}
 				{error && (
-					<div className="text-red-500 text-sm text-center p-4 bg-red-50 rounded-md border border-red-200">
+					<div className="text-red-900 text-sm text-center p-4 bg-red-50 rounded-md border border-red-200">
 						{error}
 					</div>
 				)}
